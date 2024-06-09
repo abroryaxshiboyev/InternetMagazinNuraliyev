@@ -18,6 +18,7 @@ class StockResource extends JsonResource
     {
 
         $result=[
+            'stock_id'=>$this->id,
             'quantity'=>$this->quantity,
         ];
 
