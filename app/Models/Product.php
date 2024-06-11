@@ -33,6 +33,13 @@ class Product extends Model
         return $this->hasMany(Stock::class);
     }
 
+    public function withStock($stockId):static
+    {
+        $this->stocks=[$this->stocks()->findOrFail($stockId)];
+
+        return $this;
+    }
+
     public function users():BelongsToMany
     {
         return $this->belongsToMany(User::class,'product_user');
