@@ -10,6 +10,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\UserAddress;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -21,7 +22,11 @@ class OrderController extends Controller
 
     public function index()
     {
-        return Auth::user()->orders;
+        if(request()->has('status_id')){
+        return $this->response(OrderResource::collection(auth()->user()->orders()->where('status_id',request('status_id'))->paginate(10)));
+
+        }
+        return $this->response(OrderResource::collection(auth()->user()->orders()->paginate(10)));
     }
 
 
@@ -75,20 +80,18 @@ class OrderController extends Controller
                     $stock->save();
                 }
             }
-            return 'success';
+            return $this->success('order created');
         }else{
-            return response()->json([
-                'success' =>false,
-                'message' =>'some products not found or does not have in inventory',
-                'not_found_products' =>$notFoundProducts
-            ]);
+            return $this->error(
+                'some products not found or does not have in inventory',
+                ['not_found_products' =>$notFoundProducts]);
         }
     }
 
 
-    public function show(Order $order)
+    public function show(Order $order):JsonResponse
     {
-        return new OrderResource($order);
+        return $this->response(new OrderResource($order));
     }
 
 
