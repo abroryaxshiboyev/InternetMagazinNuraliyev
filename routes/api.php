@@ -29,6 +29,7 @@ Route::post('change-password',[AuthController::class,'changePassword']);
 
 Route::get('user',[AuthController::class,'user'])->middleware('auth:sanctum');
 
+Route::get('products/{product}/related',[ProductController::class,'related']);
 
 Route::apiResources([
     'categories'=>CategoryController::class,

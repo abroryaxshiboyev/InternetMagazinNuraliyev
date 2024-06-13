@@ -14,12 +14,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products=Product::cursorPaginate(25);
+        $products = Product::cursorPaginate(25);
 
         return ProductResource::collection($products);
     }
 
-    
+
     /**
      * Store a newly created resource in storage.
      */
@@ -33,11 +33,11 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product=Product::with('stocks')->findOrFail($id);
+        $product = Product::with('stocks')->findOrFail($id);
         return $product;
     }
 
-   
+
 
     /**
      * Update the specified resource in storage.
@@ -53,5 +53,15 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         //
+    }
+
+    public function related(Product $product)
+    {
+        return $this->response(
+            Product::query()
+                ->where('category_id', $product->category_id)
+                ->limit(20)
+                ->get()
+        );
     }
 }
