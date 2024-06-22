@@ -6,12 +6,15 @@ use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->except(['index','show']);
+    }
     public function index()
     {
         $products = Product::cursorPaginate(25);
@@ -19,40 +22,34 @@ class ProductController extends Controller
         return ProductResource::collection($products);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreProductRequest $request)
     {
-        //
+        $product=Product::create($request->toArray());
+
+        return $this->success(data:new ProductResource($product));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Product $product)
     {
-        $product = Product::with('stocks')->findOrFail($id);
-        return $product;
+        return new ProductResource($product);
     }
 
-
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateProductRequest $request, Product $product)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Product $product)
     {
-        //
+        Gate::authorize('product:delete');
+
+        Storage::delete($product->photos()->pluck('path')->toArray());
+
+        $product->photos()->delete();
+
+        $product->delete();
+
+        return $this->success('Product deleted successfully');
     }
 
     public function related(Product $product)

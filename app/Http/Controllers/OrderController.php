@@ -18,6 +18,7 @@ class OrderController extends Controller
     public function __construct()
     {
         $this->middleware('auth:sanctum');
+        $this->authorizeResource(Order::class,'order');
     }
 
     public function index()
@@ -33,27 +34,29 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         $sum = 0;
-
-        // $products = Product::query()->limit(2)->get();
-
+        $products=[];
         $notFoundProducts = [];
         $address = UserAddress::find($request->address_id);
 
         foreach ($request->products as $requestProduct) {
             $product = Product::with('stocks')->findOrFail($requestProduct['product_id']);
-
             $product->quantity = $requestProduct['quantity'];
 
             if (
                 $product->stocks()->find($requestProduct['stock_id']) &&
                 $product->stocks()->find($requestProduct['stock_id'])->quantity >= $requestProduct['quantity']
             ) {
+                // Discount price
+                // Shipping fee
+                // Attribute price
+                // 
+                // 
                 $productWithStock = $product->withStock($requestProduct['stock_id']);
-                $productResource = (new ProductResource($productWithStock));
+                $productResource = (new ProductResource($productWithStock))->resolve();
 
 
-                $sum += $productResource['price'] * $requestProduct['quantity'];
-                $products[] = $productResource->resolve();
+                $sum += ($productResource['discounted_price'] ??$productResource['price']) * $requestProduct['quantity'];
+                $products[] = $productResource;
             } else {
                 $requestProduct['we_have']=$product->stocks()->find($requestProduct['stock_id'])->quantity;
                 $notFoundProducts[] = $requestProduct;
@@ -80,7 +83,7 @@ class OrderController extends Controller
                     $stock->save();
                 }
             }
-            return $this->success('order created');
+            return $this->success('order created',$order);
         }else{
             return $this->error(
                 'some products not found or does not have in inventory',
@@ -103,6 +106,8 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        //
+        $order->delete();
+
+        return 1;
     }
 }
