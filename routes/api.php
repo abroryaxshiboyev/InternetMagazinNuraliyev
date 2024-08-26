@@ -23,6 +23,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserPaymentCardController;
 use App\Http\Controllers\UserPhotoController;
 use App\Http\Controllers\UserSettingController;
+use App\Models\Order;
 use Illuminate\Support\Facades\Route;
 
 
@@ -30,8 +31,17 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('products/{product}/related',[ProductController::class,'related']);
-Route::post('roles/assign',[RoleController::class,'assign']);
 Route::post('permissions/assign',[PermissionController::class,'assign']);
+Route::post('roles/assign',[RoleController::class,'assign']);
+
+
+Route::get('test',function(){
+
+    $order=Order::find(1);
+    $order->update(['status_id' => 4]);
+
+    dd($order->status_id);
+});
 
 Route::apiResources([
     'users'=>UserController::class,
