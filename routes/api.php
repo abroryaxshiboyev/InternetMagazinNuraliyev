@@ -35,13 +35,6 @@ Route::post('permissions/assign',[PermissionController::class,'assign']);
 Route::post('roles/assign',[RoleController::class,'assign']);
 
 
-Route::get('test',function(){
-
-    $order=Order::find(1);
-    $order->update(['status_id' => 4]);
-
-    dd($order->status_id);
-});
 
 Route::apiResources([
     'users'=>UserController::class,
