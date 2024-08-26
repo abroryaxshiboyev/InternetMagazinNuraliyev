@@ -7,6 +7,7 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\ProductResource;
+use App\Models\DeliveryMethod;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\UserAddress;
@@ -37,6 +38,7 @@ class OrderController extends Controller
         $products=[];
         $notFoundProducts = [];
         $address = UserAddress::find($request->address_id);
+        $deliveryMethod=DeliveryMethod::findOrFail($request->delivery_method_id);
 
         foreach ($request->products as $requestProduct) {
             $product = Product::with('stocks')->findOrFail($requestProduct['product_id']);
@@ -65,7 +67,7 @@ class OrderController extends Controller
 
 
         if ($notFoundProducts === [] && $products !==[] && $sum!==0) {
-            // TODO add status of order
+            $sum+=$deliveryMethod->sum;
             $order = auth()->user()->orders()->create([
                 'comment' => $request->comment,
                 'delivery_method_id' => $request->delivery_method_id,
