@@ -30,9 +30,9 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('products/{product}/related',[ProductController::class,'related']);
-Route::post('permissions/assign',[PermissionController::class,'assign']);
 Route::post('roles/assign',[RoleController::class,'assign']);
+Route::post('permissions/assign',[PermissionController::class,'assign']);
+Route::get('products/{product}/related',[ProductController::class,'related']);
 
 
 
